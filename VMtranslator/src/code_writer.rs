@@ -28,7 +28,7 @@ impl CodeWriter {
         // translate arithmetic command to .asm
     }
 
-    pub fn write_push_pop(command: String, segment: String, index: i16) {
+    pub fn write_push_pop(&self, command: String, segment: String, index: i16) {
         // Push or Pop command to .asm
     }
 
