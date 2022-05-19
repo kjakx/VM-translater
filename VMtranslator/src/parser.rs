@@ -60,6 +60,9 @@ impl Parser {
     }
 
     pub arg1(&self) -> String {
+        if self.command_type() == CommandType::Return {
+            panic!("this command has no arg1");
+        }
         if self.command_type() == CommandType::Arithmetic {
             self.current_cmd[0]
         } else {
