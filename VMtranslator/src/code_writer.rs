@@ -155,12 +155,29 @@ impl CodeWriter {
                 writeln!(self.writer, "M=M+1").unwrap();
                 self.line_count += 5;
             },
+            _ => panic!("invalid arithmetic command");
         }
     }
 
     pub fn write_push_pop(&self, command: String, segment: String, index: i16) {
         // Push or Pop command to .asm
-        
+        match command {
+            "push" => {
+                match segment => {
+                    "constant" => {
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=A").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                    },
+                    _ => unimplemented!();
+                }
+            },
+            _ => unimplemented!();
+        }
     }
 
     pub fn close() {
