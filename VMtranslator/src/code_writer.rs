@@ -160,6 +160,7 @@ impl CodeWriter {
 
     pub fn write_push_pop(&self, command: String, segment: String, index: i16) {
         // Push or Pop command to .asm
+        
     }
 
     pub fn close() {
