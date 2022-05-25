@@ -72,7 +72,7 @@ impl Parser {
             "pop" => {
                 CommandType::Pop
             },
-            _ => unimpllemented!();
+            _ => unimplemented!();
         }
     }
 
