@@ -59,7 +59,24 @@ impl Parser {
         }
     }
 
-    pub arg1(&self) -> String {
+    pub fn command_type(&self) -> CommandType {
+        match self.current_cmd[0] {
+            "add" | "sub" | "neg" |
+            "eq"  | "gt"  | "lt"  |
+            "and" | "or"  | "not" => {
+                CommandType::Arithmetic
+            },
+            "push" => {
+                CommandType::Push
+            },
+            "pop" => {
+                CommandType::Pop
+            },
+            _ => unimpllemented!();
+        }
+    }
+
+    pub fn arg1(&self) -> String {
         if self.command_type() == CommandType::Return {
             panic!("this command has no arg1");
         }
@@ -70,7 +87,7 @@ impl Parser {
         }
     }
 
-    pub arg2(&self) -> String {
+    pub fn arg2(&self) -> String {
         if self.command_type() != CommandType::Push 
         && self.command_type() != CommandType::Pop
         && self.command_type() != CommandType::Function
