@@ -27,15 +27,15 @@ impl Parser {
             let l = line.as_str();
             match l.find("//") {
                 Some(n) => { // cut off the comment part
-                    l[..n].trim()
+                    l[..n].trim().to_string()
                 },
                 None => {
-                    l.trim()
+                    l.trim().to_string()
                 }
             }
         })
-        .filter(|l| l != "")
-        .map(|l| l.split_whitespace().collect::<Vec<String>>())
+        .filter(|l| l.as_str() != "")
+        .map(|l| l.split_whitespace().map(|s| String::from(s)).collect::<Vec<String>>())
         .collect();
 
         let commands_rev: Vec<Vec<String>> = commands.into_iter().rev().collect();
@@ -60,7 +60,7 @@ impl Parser {
     }
 
     pub fn command_type(&self) -> CommandType {
-        match self.current_cmd[0] {
+        match self.current_cmd[0].as_str() {
             "add" | "sub" | "neg" |
             "eq"  | "gt"  | "lt"  |
             "and" | "or"  | "not" => {
@@ -72,7 +72,9 @@ impl Parser {
             "pop" => {
                 CommandType::Pop
             },
-            _ => unimplemented!();
+            _ => {
+                unimplemented!();
+            },
         }
     }
 
@@ -81,13 +83,13 @@ impl Parser {
             panic!("this command has no arg1");
         }
         if self.command_type() == CommandType::Arithmetic {
-            self.current_cmd[0]
+            self.current_cmd[0].clone()
         } else {
-            self.current_cmd[1]
+            self.current_cmd[1].clone()
         }
     }
 
-    pub fn arg2(&self) -> String {
+    pub fn arg2(&self) -> i16 {
         if self.command_type() != CommandType::Push 
         && self.command_type() != CommandType::Pop
         && self.command_type() != CommandType::Function
@@ -95,6 +97,6 @@ impl Parser {
         {
             panic!("this command has no arg2");
         }
-        self.current_cmd[2]
+        self.current_cmd[2].parse::<i16>().unwrap()
     }
 }

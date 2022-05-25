@@ -1,33 +1,33 @@
 use std::io::{BufWriter, Write};
 use std::fs::File;
-use std::path::Path;
 
 pub struct CodeWriter {
-    filename: Path,
+    filename: String,
     writer: BufWriter<File>,
     line_count: usize,
 }
 
 impl CodeWriter {
-    pub fn new(p: Path) -> Self {
-        let filename = p;
-        let fout_path = fin_path.with_extension("asm");
-        let fout = File::create(fout_path).unwrap();
-        let mut writer = BufWriter::<File>::new(f);
+    pub fn new(f: File) -> Self {
         CodeWriter {
-            filename: filename,
-            writer: writer,
-            usize: 0,
+            filename: String::new(),
+            writer: BufWriter::<File>::new(f),
+            line_count: 0,
         }
     }
 
-    pub fn set_filename(&self, filename: Path) {
+    pub fn set_filename(&mut self, filename: String) {
         self.filename = filename;
+        writeln!(self.writer, "@256").unwrap();
+        writeln!(self.writer, "D=A").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 4;
     }
 
-    pub fn write_arithmetic(&self, command: String) {
+    pub fn write_arithmetic(&mut self, command: String) {
         // translate arithmetic command to .asm
-        match command {
+        match command.as_str() {
             "add" => {
                 writeln!(self.writer, "@SP").unwrap();    // a = 0
                 writeln!(self.writer, "AM=M-1").unwrap(); // m[0] = m[0] - 1, a = m[0] - 1(means a = SP - 1)
@@ -155,15 +155,17 @@ impl CodeWriter {
                 writeln!(self.writer, "M=M+1").unwrap();
                 self.line_count += 5;
             },
-            _ => panic!("invalid arithmetic command");
+            _ => {
+                panic!("invalid arithmetic command");
+            },
         }
     }
 
-    pub fn write_push_pop(&self, command: String, segment: String, index: i16) {
+    pub fn write_push_pop(&mut self, command: String, segment: String, index: i16) {
         // Push or Pop command to .asm
-        match command {
+        match command.as_str() {
             "push" => {
-                match segment => {
+                match segment.as_str() {
                     "constant" => {
                         writeln!(self.writer, "@{}", index).unwrap();
                         writeln!(self.writer, "D=A").unwrap();
@@ -172,16 +174,22 @@ impl CodeWriter {
                         writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 7;
                     },
-                    _ => unimplemented!();
+                    _ => {
+                        unimplemented!();
+                    },
                 }
             },
-            _ => unimplemented!();
+            _ => {
+                unimplemented!();
+            },
         }
     }
 
-    pub fn close() {
+    pub fn close(&mut self) {
+        writeln!(self.writer, "@{}", self.line_count).unwrap();
+        writeln!(self.writer, "0;JMP").unwrap();
         self.writer.flush().unwrap();
-        // nothing to do because writer will automatically be dropped...
     }
 }
