@@ -62,10 +62,10 @@ impl CodeWriter {
             "eq" => {
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "AM=M-1").unwrap();
-                writeln!(self.writer, "D=M").unwrap();
+                writeln!(self.writer, "D=M").unwrap(); // d = y
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "AM=M-1").unwrap();
-                writeln!(self.writer, "D=M-D").unwrap();
+                writeln!(self.writer, "D=M-D").unwrap(); // d = x - y
                 self.line_count += 6;
                 writeln!(self.writer, "@{}", self.line_count+5).unwrap();
                 writeln!(self.writer, "D;JEQ").unwrap(); // x = y ?
