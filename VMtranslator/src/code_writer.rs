@@ -9,20 +9,22 @@ pub struct CodeWriter {
 
 impl CodeWriter {
     pub fn new(f: File) -> Self {
+        let mut line_count = 0;
+        let mut writer = BufWriter::<File>::new(f);
+        writeln!(writer, "@256").unwrap();
+        writeln!(writer, "D=A").unwrap();
+        writeln!(writer, "@SP").unwrap();
+        writeln!(writer, "M=D").unwrap();
+        line_count += 4;
         CodeWriter {
             filename: String::new(),
-            writer: BufWriter::<File>::new(f),
-            line_count: 0,
+            writer: writer,
+            line_count: line_count,
         }
     }
 
     pub fn set_filename(&mut self, filename: String) {
         self.filename = filename;
-        writeln!(self.writer, "@256").unwrap();
-        writeln!(self.writer, "D=A").unwrap();
-        writeln!(self.writer, "@SP").unwrap();
-        writeln!(self.writer, "M=D").unwrap();
-        self.line_count += 4;
     }
 
     pub fn write_arithmetic(&mut self, command: String) {
