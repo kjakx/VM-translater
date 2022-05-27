@@ -67,19 +67,23 @@ impl CodeWriter {
                 writeln!(self.writer, "AM=M-1").unwrap();
                 writeln!(self.writer, "D=M-D").unwrap(); // d = x - y
                 self.line_count += 6;
-                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
+                writeln!(self.writer, "@{}", self.line_count+7).unwrap();
                 writeln!(self.writer, "D;JEQ").unwrap(); // x = y ?
                 // false
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=0").unwrap();
-                self.line_count += 3;
-                writeln!(self.writer, "@{}", self.line_count+3).unwrap();
+                self.line_count += 5;
+                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
                 writeln!(self.writer, "0;JMP").unwrap();
                 // true
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=-1").unwrap();
                 // end
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "M=M+1").unwrap();
-                self.line_count += 5;
+                self.line_count += 7;
             },
             "gt" => {
                 writeln!(self.writer, "@SP").unwrap();
@@ -89,19 +93,23 @@ impl CodeWriter {
                 writeln!(self.writer, "AM=M-1").unwrap();
                 writeln!(self.writer, "D=M-D").unwrap();
                 self.line_count += 6;
-                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
+                writeln!(self.writer, "@{}", self.line_count+7).unwrap();
                 writeln!(self.writer, "D;JGT").unwrap(); // x > y ?
                 // false
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=0").unwrap();
-                self.line_count += 3;
-                writeln!(self.writer, "@{}", self.line_count+3).unwrap();
+                self.line_count += 5;
+                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
                 writeln!(self.writer, "0;JMP").unwrap();
                 // true
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=-1").unwrap();
                 // end
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "M=M+1").unwrap();
-                self.line_count += 5;
+                self.line_count += 7;
             },
             "lt" => {
                 writeln!(self.writer, "@SP").unwrap();
@@ -111,19 +119,23 @@ impl CodeWriter {
                 writeln!(self.writer, "AM=M-1").unwrap();
                 writeln!(self.writer, "D=M-D").unwrap();
                 self.line_count += 6;
-                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
+                writeln!(self.writer, "@{}", self.line_count+7).unwrap();
                 writeln!(self.writer, "D;JLT").unwrap(); // x < y ?
                 // false
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=0").unwrap();
-                self.line_count += 3;
-                writeln!(self.writer, "@{}", self.line_count+3).unwrap();
+                self.line_count += 5;
+                writeln!(self.writer, "@{}", self.line_count+5).unwrap();
                 writeln!(self.writer, "0;JMP").unwrap();
                 // true
+                writeln!(self.writer, "@SP").unwrap();
+                writeln!(self.writer, "A=M").unwrap();
                 writeln!(self.writer, "M=-1").unwrap();
                 // end
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "M=M+1").unwrap();
-                self.line_count += 5;
+                self.line_count += 7;
             },
             "and" => {
                 writeln!(self.writer, "@SP").unwrap();
