@@ -190,13 +190,216 @@ impl CodeWriter {
                         writeln!(self.writer, "M=M+1").unwrap();
                         self.line_count += 7;
                     },
+                    "local" => {
+                        writeln!(self.writer, "@LCL").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "argument" => {
+                        writeln!(self.writer, "@ARG").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "this" => {
+                        writeln!(self.writer, "@THIS").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "that" => {
+                        writeln!(self.writer, "@THAT").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "pointer" => {
+                        writeln!(self.writer, "@THIS").unwrap();
+                        writeln!(self.writer, "D=A").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "temp" => {
+                        writeln!(self.writer, "@5").unwrap();
+                        writeln!(self.writer, "D=A").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    "static" => {
+                        writeln!(self.writer, "@{}.{}", self.filename, index).unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "M=M+1").unwrap();
+                        self.line_count += 10;
+                    },
+                    _ => {
+                        unimplemented!();
+                    },
+                }
+            },
+            "pop" => {
+                match segment.as_str() {
+                    "local" => {
+                        writeln!(self.writer, "@LCL").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap(); // a = m[LCL] + index
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap(); // m[13] = m[LCL] + index
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap(); // m[LCL + index] = D
+                        self.line_count += 12;
+                    },
+                    "argument" => {
+                        writeln!(self.writer, "@ARG").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        self.line_count += 12;
+                    },
+                    "this" => {
+                        writeln!(self.writer, "@THIS").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        self.line_count += 12;
+                    },
+                    "that" => {
+                        writeln!(self.writer, "@THAT").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        self.line_count += 12;
+                    },
+                    "pointer" => {
+                        writeln!(self.writer, "@THIS").unwrap();
+                        writeln!(self.writer, "D=A").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap(); // m[13] = THIS + index
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap(); // m[THIS + index] = D
+                        self.line_count += 12;
+                    },
+                    "temp" => {
+                        writeln!(self.writer, "@5").unwrap();
+                        writeln!(self.writer, "D=A").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        self.line_count += 12;
+                    },
+                    "static" => {
+                        writeln!(self.writer, "@{}.{}", self.filename, index).unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@{}", index).unwrap();
+                        writeln!(self.writer, "D=D+A").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        writeln!(self.writer, "@SP").unwrap();
+                        writeln!(self.writer, "AM=M-1").unwrap();
+                        writeln!(self.writer, "D=M").unwrap();
+                        writeln!(self.writer, "@R13").unwrap();
+                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "M=D").unwrap();
+                        self.line_count += 12;
+                    },
                     _ => {
                         unimplemented!();
                     },
                 }
             },
             _ => {
-                unimplemented!();
+                panic!("invalid command");
             },
         }
     }
