@@ -27,6 +27,10 @@ impl CodeWriter {
         self.filename = filename;
     }
 
+    pub fn write_init(&mut self) {
+        unimplemented!();
+    }
+
     pub fn write_arithmetic(&mut self, command: String) {
         // translate arithmetic command to .asm
         match command.as_str() {
@@ -402,6 +406,30 @@ impl CodeWriter {
                 panic!("invalid command");
             },
         }
+    }
+ 
+    pub fn write_label(&self, label: String) {
+        unimplemented!();
+    }
+
+    pub fn write_goto(&self, label: String) {
+        unimplemented!();
+    }
+
+    pub fn write_if(&self, label: String) {
+        unimplemented!();
+    }
+
+    pub fn write_call(&self, function_name: String, num_args: i16) {
+        unimplemented!();
+    }
+
+    pub fn write_return(&self) {
+        unimplemented!();
+    }
+
+    pub fn write_function(&self, function_name: String, num_locals: i16) {
+        unimplemented!();
     }
 
     pub fn close(&mut self) {
