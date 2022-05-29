@@ -247,43 +247,34 @@ impl CodeWriter {
                         self.line_count += 10;
                     },
                     "pointer" => {
-                        writeln!(self.writer, "@THIS").unwrap();
-                        writeln!(self.writer, "D=A").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "@{}", 3 + index).unwrap();
                         writeln!(self.writer, "D=M").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "A=M").unwrap();
                         writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "M=M+1").unwrap();
-                        self.line_count += 10;
+                        self.line_count += 7;
                     },
                     "temp" => {
-                        writeln!(self.writer, "@5").unwrap();
-                        writeln!(self.writer, "D=A").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "A=D+A").unwrap();
+                        writeln!(self.writer, "@{}", 5 + index).unwrap();
                         writeln!(self.writer, "D=M").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "A=M").unwrap();
                         writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "M=M+1").unwrap();
-                        self.line_count += 10;
+                        self.line_count += 7;
                     },
                     "static" => {
                         writeln!(self.writer, "@{}.{}", self.filename, index).unwrap();
                         writeln!(self.writer, "D=M").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "A=D+A").unwrap();
-                        writeln!(self.writer, "D=M").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "A=M").unwrap();
                         writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "M=M+1").unwrap();
-                        self.line_count += 10;
+                        self.line_count += 7;
                     },
                     _ => {
                         unimplemented!();
@@ -353,49 +344,28 @@ impl CodeWriter {
                         self.line_count += 12;
                     },
                     "pointer" => {
-                        writeln!(self.writer, "@THIS").unwrap();
-                        writeln!(self.writer, "D=A").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "D=D+A").unwrap();
-                        writeln!(self.writer, "@R13").unwrap(); // m[13] = THIS + index
-                        writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "AM=M-1").unwrap();
                         writeln!(self.writer, "D=M").unwrap();
-                        writeln!(self.writer, "@R13").unwrap();
-                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "@{}", 3 + index).unwrap();
                         writeln!(self.writer, "M=D").unwrap(); // m[THIS + index] = D
-                        self.line_count += 12;
+                        self.line_count += 5;
                     },
                     "temp" => {
-                        writeln!(self.writer, "@5").unwrap();
-                        writeln!(self.writer, "D=A").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "D=D+A").unwrap();
-                        writeln!(self.writer, "@R13").unwrap();
-                        writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "AM=M-1").unwrap();
                         writeln!(self.writer, "D=M").unwrap();
-                        writeln!(self.writer, "@R13").unwrap();
-                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "@{}", 5 + index).unwrap();
                         writeln!(self.writer, "M=D").unwrap();
-                        self.line_count += 12;
+                        self.line_count += 5;
                     },
                     "static" => {
-                        writeln!(self.writer, "@{}.{}", self.filename, index).unwrap();
-                        writeln!(self.writer, "D=M").unwrap();
-                        writeln!(self.writer, "@{}", index).unwrap();
-                        writeln!(self.writer, "D=D+A").unwrap();
-                        writeln!(self.writer, "@R13").unwrap();
-                        writeln!(self.writer, "M=D").unwrap();
                         writeln!(self.writer, "@SP").unwrap();
                         writeln!(self.writer, "AM=M-1").unwrap();
                         writeln!(self.writer, "D=M").unwrap();
-                        writeln!(self.writer, "@R13").unwrap();
-                        writeln!(self.writer, "A=M").unwrap();
+                        writeln!(self.writer, "@{}.{}", self.filename, index).unwrap();
                         writeln!(self.writer, "M=D").unwrap();
-                        self.line_count += 12;
+                        self.line_count += 5;
                     },
                     _ => {
                         unimplemented!();
@@ -408,27 +378,35 @@ impl CodeWriter {
         }
     }
  
-    pub fn write_label(&self, label: String) {
+    pub fn write_label(&mut self, label: String) {
+        writeln!(self.writer, "({})", label).unwrap();
+    }
+
+    pub fn write_goto(&mut self, label: String) {
+        writeln!(self.writer, "@{}", label).unwrap();
+        writeln!(self.writer, "0;JMP").unwrap();
+        self.line_count += 2;
+
+    }
+
+    pub fn write_if(&mut self, label: String) {
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "AM=M-1").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@{}", label).unwrap();
+        writeln!(self.writer, "D;JNE").unwrap();
+        self.line_count += 5;
+    }
+
+    pub fn write_call(&mut self, function_name: String, num_args: i16) {
         unimplemented!();
     }
 
-    pub fn write_goto(&self, label: String) {
+    pub fn write_return(&mut self) {
         unimplemented!();
     }
 
-    pub fn write_if(&self, label: String) {
-        unimplemented!();
-    }
-
-    pub fn write_call(&self, function_name: String, num_args: i16) {
-        unimplemented!();
-    }
-
-    pub fn write_return(&self) {
-        unimplemented!();
-    }
-
-    pub fn write_function(&self, function_name: String, num_locals: i16) {
+    pub fn write_function(&mut self, function_name: String, num_locals: i16) {
         unimplemented!();
     }
 
