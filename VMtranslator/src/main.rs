@@ -49,6 +49,15 @@ fn main() -> std::io::Result<()> {
                 parser::CommandType::Pop => {
                     w.write_push_pop(String::from("pop"), p.arg1(), p.arg2());
                 },
+                parser::CommandType::Label => {
+                    w.write_label(p.arg1());
+                },
+                parser::CommandType::Goto => {
+                    w.write_goto(p.arg1());
+                },
+                parser::CommandType::If => {
+                    w.write_if(p.arg1());
+                },
                 _ => {
                     unimplemented!();
                 },
