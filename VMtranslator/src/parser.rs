@@ -72,8 +72,26 @@ impl Parser {
             "pop" => {
                 CommandType::Pop
             },
+            "label" => {
+                CommandType::Label
+            },
+            "goto" => {
+                CommandType::Goto
+            },
+            "if-goto" => {
+                CommandType::If
+            },
+            "function" => {
+                CommandType::Function
+            },
+            "return" => {
+                CommandType::Return
+            },
+            "call" => {
+                CommandType::Call
+            },
             _ => {
-                unimplemented!();
+                panic!("no such command");
             },
         }
     }
