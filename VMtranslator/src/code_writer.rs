@@ -2,24 +2,21 @@ use std::io::{BufWriter, Write};
 use std::fs::File;
 
 pub struct CodeWriter {
-    filename: String,
     writer: BufWriter<File>,
+    filename: String,
+    function_name: String,
     line_count: usize,
+    call_count: usize,
 }
 
 impl CodeWriter {
     pub fn new(f: File) -> Self {
-        let mut line_count = 0;
-        let mut writer = BufWriter::<File>::new(f);
-        writeln!(writer, "@256").unwrap();
-        writeln!(writer, "D=A").unwrap();
-        writeln!(writer, "@SP").unwrap();
-        writeln!(writer, "M=D").unwrap();
-        line_count += 4;
         CodeWriter {
+            writer: BufWriter::<File>::new(f),
             filename: String::new(),
-            writer: writer,
-            line_count: line_count,
+            function_name: String::new(),
+            line_count: 0,
+            call_count: 0,
         }
     }
 
@@ -28,7 +25,12 @@ impl CodeWriter {
     }
 
     pub fn write_init(&mut self) {
-        unimplemented!();
+        writeln!(self.writer, "@256").unwrap();
+        writeln!(self.writer, "D=A").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 4;
+        self.write_call(String::from("Sys.init"), 0);
     }
 
     pub fn write_arithmetic(&mut self, command: String) {
@@ -379,27 +381,111 @@ impl CodeWriter {
     }
  
     pub fn write_label(&mut self, label: String) {
-        writeln!(self.writer, "({})", label).unwrap();
+        if self.function_name != "" {
+            writeln!(self.writer, "({}${})", self.function_name, label).unwrap();
+        } else {
+            writeln!(self.writer, "({})", label).unwrap();
+        }
     }
 
     pub fn write_goto(&mut self, label: String) {
-        writeln!(self.writer, "@{}", label).unwrap();
+        if self.function_name != "" {
+            writeln!(self.writer, "@{}${}", self.function_name, label).unwrap();
+        } else {
+            writeln!(self.writer, "@{}", label).unwrap()
+        }
         writeln!(self.writer, "0;JMP").unwrap();
         self.line_count += 2;
-
     }
 
     pub fn write_if(&mut self, label: String) {
         writeln!(self.writer, "@SP").unwrap();
         writeln!(self.writer, "AM=M-1").unwrap();
         writeln!(self.writer, "D=M").unwrap();
-        writeln!(self.writer, "@{}", label).unwrap();
+        if self.function_name != "" {
+            writeln!(self.writer, "@{}${}", self.function_name, label).unwrap();
+        } else {
+            writeln!(self.writer, "@{}", label).unwrap()
+        }
         writeln!(self.writer, "D;JNE").unwrap();
         self.line_count += 5;
     }
 
     pub fn write_call(&mut self, function_name: String, num_args: i16) {
-        unimplemented!();
+        // push return-address
+        writeln!(self.writer, "@Return.{}", self.call_count).unwrap();
+        writeln!(self.writer, "D=A").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        self.line_count += 7;
+
+        // push LCL
+        writeln!(self.writer, "@LCL").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        self.line_count += 7;
+
+        // push ARG
+        writeln!(self.writer, "@ARG").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        self.line_count += 7;
+
+        // push THIS
+        writeln!(self.writer, "@THIS").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        self.line_count += 7;
+
+        // push THAT
+        writeln!(self.writer, "@THAT").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        self.line_count += 7;
+
+        // ARG = SP - n - 5
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@{}", num_args).unwrap();
+        writeln!(self.writer, "D=D-A").unwrap();
+        writeln!(self.writer, "@5").unwrap();
+        writeln!(self.writer, "D=D-A").unwrap();
+        writeln!(self.writer, "@ARG").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 8;
+
+        // LCL = SP
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@LCL").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 4;
+
+        // goto f
+        writeln!(self.writer, "@{}", function_name).unwrap();
+        writeln!(self.writer, "0;JMP").unwrap();
+        self.line_count += 2;
+        writeln!(self.writer, "(Return.{})", self.call_count).unwrap();
+        self.call_count += 1;
     }
 
     pub fn write_return(&mut self) {
@@ -434,7 +520,7 @@ impl CodeWriter {
         writeln!(self.writer, "D=M").unwrap();
         writeln!(self.writer, "@SP").unwrap();
         writeln!(self.writer, "M=D+1").unwrap();
-        self.line_count += 5;
+        self.line_count += 4;
 
         // THAT = *(FRAME - 1)
         writeln!(self.writer, "@R13").unwrap(); // FRAME
@@ -484,8 +570,9 @@ impl CodeWriter {
     }
 
     pub fn write_function(&mut self, function_name: String, num_locals: i16) {
+        self.function_name = function_name;
         // function_name label
-        writeln!(self.writer, "({})", function_name).unwrap();
+        writeln!(self.writer, "({})", self.function_name).unwrap();
         // local variables initialization
         writeln!(self.writer, "@{}", num_locals).unwrap();
         writeln!(self.writer, "D=A").unwrap();
