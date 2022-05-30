@@ -58,6 +58,15 @@ fn main() -> std::io::Result<()> {
                 parser::CommandType::If => {
                     w.write_if(p.arg1());
                 },
+                parser::CommandType::Function => {
+                    w.write_function(p.arg1(), p.arg2());
+                },
+                parser::CommandType::Return => {
+                    w.write_return();
+                },
+                parser::CommandType::Call => {
+                    w.write_call(p.arg1(), p.arg2());
+                },
                 _ => {
                     unimplemented!();
                 },
