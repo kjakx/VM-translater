@@ -403,11 +403,106 @@ impl CodeWriter {
     }
 
     pub fn write_return(&mut self) {
-        unimplemented!();
+        // FRAME = LCL
+        writeln!(self.writer, "@LCL").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 4;
+
+        // RET = *(FRAME - 5)
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@5").unwrap(); // FRAME
+        writeln!(self.writer, "A=D-A").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@R14").unwrap(); // RET
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 7;
+
+        // *ARG = pop()
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "AM=M-1").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@ARG").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 6;
+
+        // SP = ARG + 1
+        writeln!(self.writer, "@ARG").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=D+1").unwrap();
+        self.line_count += 5;
+
+        // THAT = *(FRAME - 1)
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@1").unwrap(); // FRAME
+        writeln!(self.writer, "A=D-A").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@THAT").unwrap(); // RET
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 7;
+
+        // THIS = *(FRAME - 2)
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@2").unwrap(); // FRAME
+        writeln!(self.writer, "A=D-A").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@THIS").unwrap(); // RET
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 7;
+
+        // ARG = *(FRAME - 3)
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@3").unwrap(); // FRAME
+        writeln!(self.writer, "A=D-A").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@ARG").unwrap(); // RET
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 7;
+
+        // LCL = *(FRAME - 4)
+        writeln!(self.writer, "@R13").unwrap(); // FRAME
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@4").unwrap(); // FRAME
+        writeln!(self.writer, "A=D-A").unwrap();
+        writeln!(self.writer, "D=M").unwrap();
+        writeln!(self.writer, "@LCL").unwrap(); // RET
+        writeln!(self.writer, "M=D").unwrap();
+        self.line_count += 7;
+
+        // goto RET
+        writeln!(self.writer, "@R14").unwrap(); // FRAME
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "0;JMP").unwrap();
+        self.line_count += 3;
     }
 
     pub fn write_function(&mut self, function_name: String, num_locals: i16) {
-        unimplemented!();
+        // function_name label
+        writeln!(self.writer, "({})", function_name).unwrap();
+        // local variables initialization
+        writeln!(self.writer, "@{}", num_locals).unwrap();
+        writeln!(self.writer, "D=A").unwrap();
+        self.line_count += 2;
+        writeln!(self.writer, "@{}", self.line_count+10).unwrap();
+        writeln!(self.writer, "D;JEQ").unwrap();
+        // push 0 num_locals times
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "A=M").unwrap();
+        writeln!(self.writer, "M=0").unwrap();
+        writeln!(self.writer, "@SP").unwrap();
+        writeln!(self.writer, "M=M+1").unwrap();
+        writeln!(self.writer, "D=D-1").unwrap();
+        self.line_count += 8;
+        writeln!(self.writer, "@{}", self.line_count-8).unwrap();
+        writeln!(self.writer, "0;JMP").unwrap();
+        self.line_count += 2;
     }
 
     pub fn close(&mut self) {
