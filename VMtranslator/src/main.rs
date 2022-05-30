@@ -31,6 +31,7 @@ fn main() -> std::io::Result<()> {
 
     let fout = File::create(fout_path).unwrap();
     let mut w = code_writer::CodeWriter::new(fout);
+    w.write_init();
 
     for fin_path in fin_paths.iter() {
         let fin = File::open(fin_path)?;
@@ -66,9 +67,6 @@ fn main() -> std::io::Result<()> {
                 },
                 parser::CommandType::Call => {
                     w.write_call(p.arg1(), p.arg2());
-                },
-                _ => {
-                    unimplemented!();
                 },
             }
         }
