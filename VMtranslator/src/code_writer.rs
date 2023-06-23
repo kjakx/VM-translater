@@ -151,7 +151,7 @@ impl CodeWriter {
                 writeln!(self.writer, "D=M").unwrap();
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "AM=M-1").unwrap();
-                writeln!(self.writer, "M=M&D").unwrap(); // x & y
+                writeln!(self.writer, "M=D&M").unwrap(); // x & y
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "M=M+1").unwrap();
                 self.line_count += 8;
@@ -162,7 +162,7 @@ impl CodeWriter {
                 writeln!(self.writer, "D=M").unwrap();
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "AM=M-1").unwrap();
-                writeln!(self.writer, "M=M|D").unwrap(); // x | y
+                writeln!(self.writer, "M=D|M").unwrap(); // x | y
                 writeln!(self.writer, "@SP").unwrap();
                 writeln!(self.writer, "M=M+1").unwrap();
                 self.line_count += 8;
